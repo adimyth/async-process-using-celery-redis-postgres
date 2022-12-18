@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  app:
+    container_name: web-app
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    ports:
+      - "8000:8000"
+    environment:
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "db+postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    depends_on:
+      - redis
+      - postgres
+
+  worker:
+    container_name: celery-worker
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "db+postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    depends_on:
+      - app
+      - redis
+      - postgres
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    volumes:
+      - redis:/data
+
+  # TODO: Using a recent version of postgres will cause the worker to fail. It throws "Error SCRAM authentication requires libpq >= 10.0"
+  postgres:
+    container_name: postgres
+    image: postgres:11
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  flower:
+    container_name: celery-flower
+    build:
+      context: .
+      dockerfile: Dockerfile.flower
+    ports:
+      - "5555:5555"
+    environment:
+      BROKER_URL: "redis://redis:6379/0"
+      RESULT_BACKEND: "db+postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+      FLOWER_BASIC_AUTH: "${FLOWER_USER}:${FLOWER_PASSWORD}"
+    depends_on:
+      - worker
+      - redis
+
+volumes:
+  redis:
+  postgres:

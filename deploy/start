@@ -1,0 +1,13 @@
+#!/bin/sh
+# set environment variables
+source .env
+
+# start the application
+if [ "${ENVIRONMENT}" = "dev" ]; then
+    make run-dev
+elif [ "${ENVIRONMENT}" = "prod" ]; then
+    make run-prod
+else
+    echo "Please set ENVIRONMENT to dev or prod"
+    exit 1
+fi
