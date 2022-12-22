@@ -53,8 +53,9 @@ FLOWER_PASSWORD=""
 
 We have a basic task. The task is to find all the prime numbers between 1 and a given number.
 
-1. Add a new task
-   _URL_: http://localhost:8000/task
+1️⃣ Add a new task
+
+_URL_: http://localhost:8000/task
 
 _Request Body_
 
@@ -72,8 +73,11 @@ _Response Body_
 }
 ```
 
-2. Get the task status
-   **URL**: http://localhost:8000/task/{TASK-ID-FROM-PREVIOUS-STEP}
+---
+
+2️⃣ Get the task status and result
+
+_URL_: http://localhost:8000/task/{TASK-ID-FROM-PREVIOUS-STEP}
 
 _Response Body_
 
@@ -92,3 +96,9 @@ Note that state can be one of the following:
 4. FAILURE (task execution resulted in exception)
 5. RETRY (task is being retried)
 6. REVOKED (task has been revoked)
+
+---
+
+3️⃣ Monitoring the tasks using flower
+
+**URL**: http://localhost:5555
